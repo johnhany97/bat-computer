@@ -150,7 +150,10 @@ adder = ...
 -- ---------------------------
 -- create a program to copy the contents of box m to box n (leave box m unchanged)
 copyBox :: Int -> Int -> Program
-copyBox m n = ...
+copyBox m n = [CLR n,
+               JEQ m n 4,
+               INC n,
+               JEQ n n 1]
 
 
 -- PROBLEM 12. YOUR CODE HERE
