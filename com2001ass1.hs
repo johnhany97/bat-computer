@@ -123,7 +123,10 @@ execute p ins = getOutput ((runProgram p ins) :: BATConfig)
 -- words, change Jump instructions from (J x y t) to (J x y (t+n))
 -- and leave all other instructions unchanged.
 transpose :: Int -> Program -> Program
-transpose ...
+transpose _ [] = []
+transpose x (h:t) = case h of
+  JEQ b1 b2 y -> ((JEQ b1 b2 (x+y)):transpose x t)
+  _ -> (h:transpose x t)
 
 
 
@@ -132,7 +135,8 @@ transpose ...
 -- join two programs together, so as to run one
 -- after the other
 (*->*) :: Program -> Program -> Program
-p1 *->* p2 = ...
+p1 *->* p2 = let newP2 = transpose (length p1) p2
+             in p1 ++ newP2
 
 
 -- PROBLEM 10. YOUR CODE HERE
