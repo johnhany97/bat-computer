@@ -75,8 +75,7 @@ data BATConfig = BATConfig {
 -- PROBLEM 2. YOUR CODE HERE
 -- --------------------------
 instance Show BATConfig where
-    show (BATConfig boxes counter) = "boxes = " ++ (show new_boxes) ++ "; counter = " ++ (show counter)
-                                  where new_boxes = (0:boxes)
+    show (BATConfig boxes counter) = "boxes = " ++ (show boxes) ++ "; counter = " ++ (show counter)
 
 
 
@@ -89,28 +88,27 @@ instance ProgrammableComputer BATConfig  where
     -- PROBLEM 3: initialise   :: Program -> [Input] -> cfg
     initialise _ ins = BATConfig (0:ins) 0
     -- PROBLEM 4: acceptState  :: Program -> cfg -> Bool
-    acceptState [] _ = True
-    acceptState _ _ = False
+    acceptState p (BATConfig _ counter) = (length p) == counter
     -- PROBLEM 5: doNextMove   :: Program -> cfg -> cfg
-    doNextMove p (BATConfig boxes counter) = case (p!!counter) of
-      CLR x -> BATConfig (clear_box boxes x 0) inc_counter
-      INC x -> BATConfig (inc_box boxes x 0) inc_counter
-      JEQ x y t -> case (x == y) of
-        True -> BATConfig boxes t
-        False -> BATConfig boxes inc_counter
-      where clear_box (h:t) x i
-              | x == i = (0:t)
-              | otherwise = (h:clear_box t x (i+1))
-            inc_box (h:t) x i
-              | x == i = (h+1:t)
-              | otherwise = (h:inc_box t x (i+1))
+    doNextMove p (BATConfig boxes counter) = case p!!counter of
+      CLR x -> (BATConfig (clearElement x boxes) inc_counter)
+      INC x -> (BATConfig (incElement x boxes) inc_counter)
+      JEQ x y t -> case (boxes!!x == boxes!!y) of
+        True -> (BATConfig boxes t)
+        False -> (BATConfig boxes inc_counter)
+      where clearElement x (h:t)
+              | x == 0 = (0:t)
+              | otherwise = (h:clearElement (x-1) t)
+            incElement x (h:t)
+              | x == 0 = (h+1:t)
+              | otherwise = (h:incElement (x-1) t)
             inc_counter = counter + 1
     -- PROBLEM 6: runFrom      :: Program -> cfg -> cfg
     runFrom p cfg
-      | null p = cfg
-      | otherwise = doNextMove p cfg
+      | acceptState p cfg = cfg
+      | otherwise = runFrom p (doNextMove p cfg)
     -- PROBLEM 7: getOutput    :: cfg -> Output
-    getOutput (BATConfig boxes _) = boxes!!1
+    getOutput (BATConfig (_:(x:_)) _) = x
 
 
 -- This function is included to help with testing. Running
@@ -118,7 +116,6 @@ instance ProgrammableComputer BATConfig  where
 -- running program p with user input(s) xs
 execute :: Program -> [Input] -> Output
 execute p ins = getOutput ((runProgram p ins) :: BATConfig)
-
 
 -- PROBLEM 8. YOUR CODE HERE
 -- ---------------------------
