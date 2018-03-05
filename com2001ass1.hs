@@ -87,15 +87,30 @@ instance Show BATConfig where
 -- Box 0 can be used by programs for calculations.
 instance ProgrammableComputer BATConfig  where
     -- PROBLEM 3: initialise   :: Program -> [Input] -> cfg
-    initialise ...
+    initialise _ ins = BATConfig (0:ins) 0
     -- PROBLEM 4: acceptState  :: Program -> cfg -> Bool
-    acceptState ...
+    acceptState [] _ = True
+    acceptState _ _ = False
     -- PROBLEM 5: doNextMove   :: Program -> cfg -> cfg
-    doNextMove ...
+    doNextMove p (BATConfig boxes counter) = case (p!!counter) of
+      CLR x -> BATConfig (clear_box boxes x 0) inc_counter
+      INC x -> BATConfig (inc_box boxes x 0) inc_counter
+      JEQ x y t -> case (x == y) of
+        True -> BATConfig boxes t
+        False -> BATConfig boxes inc_counter
+      where clear_box (h:t) x i
+              | x == i = (0:t)
+              | otherwise = (h:clear_box t x (i+1))
+            inc_box (h:t) x i
+              | x == i = (h+1:t)
+              | otherwise = (h:inc_box t x (i+1))
+            inc_counter = counter + 1
     -- PROBLEM 6: runFrom      :: Program -> cfg -> cfg
-    runFrom ...
+    runFrom p cfg
+      | null p = cfg
+      | otherwise = doNextMove p cfg
     -- PROBLEM 7: getOutput    :: cfg -> Output
-    getOutput ...
+    getOutput (BATConfig boxes _) = boxes!!1
 
 
 -- This function is included to help with testing. Running
