@@ -143,7 +143,11 @@ p1 *->* p2 = let newP2 = transpose (length p1) p2
 -- ---------------------------
 -- program to compute B1 = B1 + B2
 adder :: Program
-adder = ...
+adder = [CLR 0,
+         JEQ 2 0 5,
+         INC 0,
+         INC 1,
+         JEQ 0 0 1]
 
 
 -- PROBLEM 11. YOUR CODE HERE
@@ -160,7 +164,29 @@ copyBox m n = [CLR n,
 -- ---------------------------
 -- program to compute B1 = Bx + By
 addXY :: Int -> Int -> Program
-addXY x y = ...
+addXY 1 2 = adder
+addXY 2 1 = adder
+addXY 1 x = [CLR 0,
+             JEQ x 0 5,
+             INC 0,
+             INC 1,
+             JEQ 0 0 1]
+addXY x 1 = [CLR 0,
+             JEQ x 0 5,
+             INC 0,
+             INC 1,
+             JEQ 0 0 1]
+addXY x y = [CLR 1,
+             CLR 0,
+             JEQ x 0 6,
+             INC 0,
+             INC 1,
+             JEQ 0 0 2,
+             CLR 0,
+             JEQ y 0 11,
+             INC 0,
+             INC 1,
+             JEQ 0 0 7]
 
 
 -- END OF TEMPLATE FILE
